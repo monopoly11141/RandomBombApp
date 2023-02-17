@@ -3,6 +3,7 @@ package com.example.randombombapp
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.widget.SeekBar
 import android.widget.TextView
@@ -18,8 +19,12 @@ import kotlin.random.Random
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     val min = 1
-    val max = 100
+    val step = 25
+    val max = 500 / step
+
     private lateinit var rvBombAdapter: RVBombsAdapter
+    var buttonClickClicked = 1
+    var flag = true
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,10 +34,12 @@ class MainActivity : AppCompatActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
         //binding variables
+        val tvSelectBombNumber = binding.tvSelectBombNumber
         val btnChoose = binding.btnChoose
         val sbBombNumber = binding.sbBombNumber
         val tvSbBombNumber = binding.tvSbBombNumber
         val btnClick = binding.btnClick
+        btnClick.text = "${buttonClickClicked}번째 폭파"
 
         val imagesString = mutableListOf<String>()
 
@@ -42,7 +49,7 @@ class MainActivity : AppCompatActivity() {
         sbBombNumber.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
 
-                setSeekBarChange(progress, tvSbBombNumber)
+                setSeekBarChange(progress * 25, tvSbBombNumber)
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -58,16 +65,20 @@ class MainActivity : AppCompatActivity() {
 
 
         btnChoose.setOnClickListener {
+            tvSelectBombNumber.text = "남은 폭탄 개수"
             val toast =
                 Toast.makeText(this, "폭탄 ${tvSbBombNumber.text}개 제조 완료.", Toast.LENGTH_SHORT)
             toast.show()
 
-            val handler = Handler()
+            val handler = Handler(Looper.getMainLooper())
+
             handler.postDelayed(Runnable { toast.cancel() }, 1000)
 
 
             btnChoose.visibility = View.GONE
             sbBombNumber.visibility = View.GONE
+            tvSelectBombNumber.text = "남은 폭탄 개수"
+
             btnClick.visibility = View.VISIBLE
 
             rvBombAdapter = RVBombsAdapter(imagesString)
@@ -77,13 +88,20 @@ class MainActivity : AppCompatActivity() {
             }
 
             rvBombs.adapter = rvBombAdapter
-            rvBombs.layoutManager = GridLayoutManager(this, 10)
+            if(tvSbBombNumber.text.toString().toInt() > 100) {
+                rvBombs.layoutManager = GridLayoutManager(this, 25)
+            }else {
+                rvBombs.layoutManager = GridLayoutManager(this, 10)
+            }
+
 
             rvBombAdapter.notifyDataSetChanged()
         }
 
 
         btnClick.setOnClickListener {
+            buttonClickClicked++
+            btnClick.text = "${buttonClickClicked}번째 폭파"
             val numberOfBombs = imagesString.size
             val destroyedBombs = Random.nextInt(0, numberOfBombs + 1)
             val survivedBombs = numberOfBombs - destroyedBombs
@@ -92,7 +110,7 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "폭탄 ${survivedBombs}개 남았습니다.", Toast.LENGTH_SHORT)
             toast.show()
 
-            val handler = Handler()
+            val handler = Handler(Looper.getMainLooper())
             handler.postDelayed(Runnable { toast.cancel() }, 500)
 
             for (i in 1..destroyedBombs) {
@@ -100,9 +118,16 @@ class MainActivity : AppCompatActivity() {
                 rvBombAdapter.notifyItemRemoved(0);
             }
 
+
+            if(tvSbBombNumber.text.toString().toInt() <= 100 && flag) {
+                binding.rvBombs.layoutManager = GridLayoutManager(this, 10)
+                flag = false;
+            }
+
             if(tvSbBombNumber.text == "0") {
                 tvSbBombNumber.text = "폭탄이 전부 폭파되었습니다"
                 Toast.makeText(this, "폭탄이 전부 폭파되었습니다", Toast.LENGTH_SHORT).show()
+                btnClick.isEnabled = false
             }
         }
 

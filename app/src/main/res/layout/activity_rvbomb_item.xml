@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="30dp"
-    android:layout_height="30dp"
+    android:layout_width="20dp"
+    android:layout_height="20dp"
     tools:context=".bomb.RVBombItemActivity">
 
     <ImageView
         android:id="@+id/imgBomb"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_margin="5dp"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_margin="3dp"
         android:src="@drawable/bomb"
-        android:layout_gravity="center"/>
+        android:layout_gravity="center"
+        android:scaleType="fitXY" />
 
 </LinearLayout>
