@@ -1,10 +1,12 @@
 package com.example.randombombapp
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
+import android.view.View.VISIBLE
 import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
@@ -14,7 +16,9 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.randombombapp.bomb.RVBombsAdapter
 import com.example.randombombapp.databinding.ActivityMainBinding
+import java.lang.Integer.min
 import kotlin.random.Random
+
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -103,7 +107,7 @@ class MainActivity : AppCompatActivity() {
             buttonClickClicked++
             btnClick.text = "${buttonClickClicked}번째 폭파"
             val numberOfBombs = imagesString.size
-            val destroyedBombs = Random.nextInt(0, numberOfBombs + 1)
+            val destroyedBombs = min(Random.nextInt(0, numberOfBombs + 1), Random.nextInt(0, numberOfBombs + 1))
             val survivedBombs = numberOfBombs - destroyedBombs
             tvSbBombNumber.text = survivedBombs.toString()
             val toast =
@@ -128,9 +132,16 @@ class MainActivity : AppCompatActivity() {
                 tvSbBombNumber.text = "폭탄이 전부 폭파되었습니다"
                 Toast.makeText(this, "폭탄이 전부 폭파되었습니다", Toast.LENGTH_SHORT).show()
                 btnClick.isEnabled = false
+                binding.btnRestart.visibility = VISIBLE
             }
         }
 
+        binding.btnRestart.setOnClickListener {
+
+            val intent = Intent(this, MainActivity::class.java)
+            this.startActivity(intent)
+            finishAffinity()
+        }
 
     }
 
@@ -138,6 +149,8 @@ class MainActivity : AppCompatActivity() {
         var seekBarValue = value
         tvSeekBarValue.text = seekBarValue.toString()
     }
+
+
 }
 
 
